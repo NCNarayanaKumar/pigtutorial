@@ -26,7 +26,7 @@ public class TestPigCount extends TestCase {
     }
 
     @Test
-    public void testAllCurrentTimeSame() throws Exception {
+    public void testPigCount() throws Exception {
         Data data = resetData(pigServer);
 
         List<Tuple> dummySequenceNumbers = Lists.newArrayList();
