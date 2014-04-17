@@ -20,29 +20,56 @@ import com.google.common.collect.Lists;
 public class TestPigCount extends TestCase {
 	private static PigServer pigServer;
 
-    @Before
-    public void setUp() throws Exception {
-        pigServer = new PigServer(ExecType.LOCAL);
-    }
+	@Before
+	public void setUp() throws Exception {
+		pigServer = new PigServer(ExecType.LOCAL);
+	}
 
-    @Test
-    public void testPigCount() throws Exception {
-        Data data = resetData(pigServer);
+	@Test
+	public void testPigCount() throws Exception {
+		Data data = resetData(pigServer);
 
-        List<Tuple> dummySequenceNumbers = Lists.newArrayList();
-        for (int i = 0; i < 1000; i++) {
-            dummySequenceNumbers.add(tuple(i));
-        }
+		/*
+		 * Generate Dummy data to aggregate in a List of Tuple(Pig Data Type)
+		 */
+		List<Tuple> dummySequenceNumbers = Lists.newArrayList();
+		for (int i = 0; i < 1000; i++) {
+			dummySequenceNumbers.add(tuple(i));
+		}
 
-        data.set("input", dummySequenceNumbers);
+		/*
+		 * Set the List to Mock Storage data object
+		 */
+		data.set("input_data", dummySequenceNumbers);
 
-        pigServer.registerQuery("A = load 'input' using mock.Storage();");
-        pigServer.registerQuery("B = foreach A generate $0 as col1;");
-        pigServer.registerQuery("C = foreach (group B all) generate COUNT($1);");
-        Iterator<Tuple> it = pigServer.openIterator("C");
-        assertTrue(it.hasNext());
-        Tuple t = it.next();
-        assertEquals(1000L, t.get(0));
-        assertFalse(it.hasNext());
-    }
+		/*
+		 * Step 1 : Load data to Pig alias a using Mock load function 
+		 * Step 2 : Generate the 1st column and name the column 
+		 * Step 3 : Group all data to aggregate (i,e to find count) 
+		 * Step 4 : Use Built in Function COUNT to obtain the count of 
+		 * 			the aggregated data
+		 */
+		// Step 1
+		pigServer.registerQuery("a = LOAD 'input_data' USING mock.Storage();");
+		// Step 2
+		pigServer.registerQuery("b = FOREACH a GENERATE $0 AS COL1;");
+		// Step 3
+		pigServer.registerQuery("c = GROUP b ALL;");
+		// Step 4
+		pigServer.registerQuery("d = FOREACH c GENERATE COUNT($1);");
+		
+		/*
+		 * Open the iterator for the alias d. This executes the Pig 
+		 * Queries registered to pigServer
+		 */
+		Iterator<Tuple> it = pigServer.openIterator("d");
+		// Check if the iterator has any records
+		assertTrue(it.hasNext());
+		// Obtain the tuple
+		Tuple t = it.next();
+		// Check if the 1st column of the row is 1000 (in long data type)
+		assertEquals(1000L, t.get(0));
+		// Should contain only 1 row. Assert if has more than 1
+		assertFalse(it.hasNext());
+	}
 }
