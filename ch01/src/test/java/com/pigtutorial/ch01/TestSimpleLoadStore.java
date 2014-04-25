@@ -53,10 +53,13 @@ public class TestSimpleLoadStore extends TestCase {
 		}
 
 		/*
-		 * Mention input output in the Java Test Script Use tab delimited data
-		 * here, even though you have mentioned different delimiter in the
-		 * PigStorage. The assertOutput do not accept any other data accept the
-		 * tab delimited data . This issue is already logged in Apacge Pig Jira.
+		 * Mention input output in the Java Test using String array variables.
+		 * 
+		 * IMPORTANT 
+		 * Script Use tab delimited data here, even though you have mentioned
+		 * different delimiter in the PigStorage. The assertOutput do not accept
+		 * any other data accept the tab delimited data . This issue is already
+		 * logged in Apacge Pig Jira.
 		 * 
 		 * JIRA - PIG-3162 Link : https://issues.apache.org/jira/browse/PIG-3162
 		 */
