@@ -29,7 +29,7 @@ public class TestSimpleLoadStore extends TestCase {
 		}
 
 		try {
-			test.assertOutput("data", file);
+			test.assertOutput("data_alias", file);
 			test.unoverride("STORE");
 			test.runScript();
 		} catch (IOException e) {
@@ -52,13 +52,20 @@ public class TestSimpleLoadStore extends TestCase {
 			e.printStackTrace();
 		}
 
-		// Mention input output in the Java Test Script
-		String[] input = { "Hello World", "Hello Apache Pig",
-				"Hello Apache Hadoop" };
-		String[] output = { "(Hello World)", "(Hello Apache Pig)",
-				"(Hello Apache Hadoop)" };
+		/*
+		 * Mention input output in the Java Test Script Use tab delimited data
+		 * here, even though you have mentioned different delimiter in the
+		 * PigStorage. The assertOutput do not accept any other data accept the
+		 * tab delimited data . This issue is already logged in Apacge Pig Jira.
+		 * 
+		 * JIRA - PIG-3162 Link : https://issues.apache.org/jira/browse/PIG-3162
+		 */
+		String[] input = { "STUD0001\tMarita\t29", "STUD0002\tShannon\t21",
+				"STUD0003\tGayle\t24", "STUD0004\tStephen\t32" };
+		String[] output = { "(STUD0001,Marita,29)", "(STUD0002,Shannon,21)",
+				"(STUD0003,Gayle,24)", "(STUD0004,Stephen,32)" };
 		try {
-			test.assertOutput("data", input, "data", output);
+			test.assertOutput("data_alias", input, "data_alias", output);
 		} catch (IOException e) {
 			System.err.println("Caught exception while reading file");
 			e.printStackTrace();
